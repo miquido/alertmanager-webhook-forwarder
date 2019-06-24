@@ -2,13 +2,6 @@ version: 2.1
 # orbs:
 #   codecov: codecov/codecov@1.0.5
 aliases:
-
-  - &dump-coverage-env
-    run:
-      name: Dump coverage env for hash
-      command: |-
-        echo "COVERAGE=1" >> dumped.env;
-
   - &dump-env-vars
     run:
       name: Dump env for hash
@@ -39,7 +32,7 @@ aliases:
   - &docker-compose-build
     run:
       name: Docker-Compose Build
-      command: docker-compose build --pull lint
+      command: docker-compose build --pull "$DOCKER_COMPOSE_SERVICES"
 
   - &code-style-analysis
     run:
@@ -51,7 +44,7 @@ aliases:
       name: Export Docker image layer cache
       command: |-
         mkdir -p /home/circleci/caches
-        docker-compose build lint | grep '\-\-\->' | grep -v 'Using cache' | sed -e 's/[ >-]//g' > /tmp/layers.txt
+        docker-compose build "$DOCKER_COMPOSE_SERVICES" | grep '\-\-\->' | grep -v 'Using cache' | sed -e 's/[ >-]//g' > /tmp/layers.txt
         docker save $(cat /tmp/layers.txt) | gzip > /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz
 
   - &save-docker-cache
@@ -68,6 +61,23 @@ aliases:
         if [ "" == "$CURRENT_VERSION" ]; then CURRENT_VERSION="0.0.0"; fi
         echo "CURRENT_VERSION=$CURRENT_VERSION"
         echo "export CURRENT_VERSION='$CURRENT_VERSION'" >> $BASH_ENV
+
+  - &set-tag-env
+    run:
+      name: Set current version to tag env variable
+      command: |-
+        echo "TAG=$CURRENT_VERSION"
+        echo "export TAG='$CURRENT_VERSION'" >> $BASH_ENV
+
+  - &docker-login
+    run:
+      name: Login to docker registry
+      command: echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USERNAME" --password-stdin "$REGISTRY"
+
+  - &docker-compose-push
+    run:
+      name: Push built image to docker registry
+      command: docker-compose push "$DOCKER_COMPOSE_SERVICES"
 
   # Build environments
   - &docker-env
@@ -89,6 +99,20 @@ aliases:
       - *export-docker-cache
       - *save-docker-cache
 
+  - &docker-release
+    steps:
+      - checkout
+      - *dump-env-vars
+      - *restore-docker-cache
+      - *load-docker-cache
+      - *get-current-version-env
+      - *set-tag-env
+      - *docker-compose-build
+      - *docker-login
+      - *docker-compose-push
+      - *export-docker-cache
+      - *save-docker-cache
+
   # Filters
   - &pull-request-checks-job-filters
     filters:
@@ -104,18 +128,27 @@ aliases:
         only:
           - master
 
+  - &post-release-job-filters
+    filters:
+      tags:
+        only: /^v.*/
+      branches:
+        ignore: /.*/
+
 jobs:
   go-default:
     <<: *docker-env
     <<: *docker-default
     environment:
+      DOCKER_COMPOSE_SERVICES: lint
       GOLANG_TAG: 1.12.6-alpine3.10
 
   go-latest:
     <<: *docker-env
     <<: *docker-default
     environment:
-      GOLANG_TAG: alpine
+      DOCKER_COMPOSE_SERVICES: lint
+      GOLANG_TAG: 1.12.6-alpine3.10
 
   release-version:
     docker:
@@ -144,6 +177,14 @@ jobs:
           name: Validate commit message format
           command: commitlint --from=HEAD~1
 
+  deploy-artifacts:
+    <<: *docker-env
+    <<: *docker-release
+    environment:
+      GOLANG_TAG: alpine
+      APP: alertmanager-webhook-forwarder
+      DOCKER_COMPOSE_SERVICES: cli
+
 workflows:
   version: 2.1
   pull-request-checks:
@@ -162,13 +203,11 @@ workflows:
           <<: *release-job-filters
       - go-latest:
           <<: *release-job-filters
-      - approve-release:
-          type: approval
-          requires:
-            # - go-latest
-            # - go-default
-            - validate-commit-message
       - release-version:
           <<: *release-job-filters
           requires:
-            - approve-release
+            - go-latest
+            - go-default
+            - validate-commit-message
+      - deploy-artifacts:
+          <<: *post-release-job-filters
