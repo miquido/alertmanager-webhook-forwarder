@@ -1,0 +1,114 @@
+version: 2.1
+# orbs:
+#   codecov: codecov/codecov@1.0.5
+aliases:
+
+  - &dump-coverage-env
+    run:
+      name: Dump coverage env for hash
+      command: |-
+        echo "COVERAGE=1" >> dumped.env;
+
+  - &dump-env-vars
+    run:
+      name: Dump env for hash
+      command: |-
+        echo "GOLANG_VERSION=$GOLANG_VERSION" >> dumped.env;
+        cat dumped.env;
+
+  - &restore-docker-cache
+    restore_cache:
+      keys:
+        - docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "go.sum" }}
+        - docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}
+        - docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}
+        - docker-{{ checksum "dumped.env" }}
+        - docker
+
+  - &load-docker-cache
+    run:
+      name: Load Docker layer cache
+      command: |-
+        # credits to: https://blog.jondh.me.uk/2018/04/strategies-for-docker-layer-caching-in-circleci/
+        set +o pipefail
+        if [ -f /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz ]; then
+          gunzip -c /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz | docker load;
+          docker images;
+        fi
+
+  - &docker-compose-build
+    run:
+      name: Docker-Compose Build
+      command: docker-compose build --pull lint
+
+  - &code-style-analysis
+    run:
+      name: Code style analysis
+      command: docker-compose run --rm lint
+
+  - &export-docker-cache
+    run:
+      name: Export Docker image layer cache
+      command: |-
+        mkdir -p /home/circleci/caches
+        docker-compose build composer | grep '\-\-\->' | grep -v 'Using cache' | sed -e 's/[ >-]//g' > /tmp/layers.txt
+        docker save $(cat /tmp/layers.txt) | gzip > /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz
+
+  - &save-docker-cache
+    save_cache:
+      key: docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "composer.lock" }}
+      paths:
+        - /home/circleci/caches
+
+  # Build environments
+  - &docker-env
+    working_directory: ~/workdir
+    machine:
+      enabled: true
+      # Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
+      image: ubuntu-1604:201903-01
+
+  # Steps
+  - &docker-default
+    steps:
+      - checkout
+      - *dump-env-vars
+      - *restore-docker-cache
+      - *load-docker-cache
+      - *docker-compose-build
+      - *code-style-analysis
+      - *export-docker-cache
+      - *save-docker-cache
+
+jobs:
+  go-default:
+    <<: *docker-env
+    <<: *docker-default
+    environment:
+      GOLANG_VERSION: 1.12.6-alpine3.10
+
+  go-latest:
+    <<: *docker-env
+    <<: *docker-default
+    environment:
+      GOLANG_VERSION: alpine
+
+  validate-commit-message:
+    docker:
+      - image: node:lts-alpine
+    steps:
+      - checkout
+      - run:
+          name: Install commitlint
+          command: yarn global add @commitlint/cli @commitlint/config-conventional
+      - run:
+          name: Validate commit message format
+          command: commitlint --from=HEAD~1
+
+workflows:
+  version: 2.1
+  pull-request-checks:
+    jobs:
+      - validate-commit-message
+      - go-default
+      - go-latest
