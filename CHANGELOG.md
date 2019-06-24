@@ -1,4 +1,14 @@
 <a name=""></a>
+# [](https://github.com/k911/alertmanager-webhook-forwarder/compare/v0.1.1...v) (2019-06-24)
+
+
+
+<a name="0.1.1"></a>
+## [0.1.1](https://github.com/k911/alertmanager-webhook-forwarder/compare/v0.1.0...v0.1.1) (2019-06-24)
+
+
+
+<a name=""></a>
 # [](https://github.com/k911/alertmanager-webhook-forwarder/compare/v0.1.0...v) (2019-06-24)
 
 
