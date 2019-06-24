@@ -51,12 +51,12 @@ aliases:
       name: Export Docker image layer cache
       command: |-
         mkdir -p /home/circleci/caches
-        docker-compose build composer | grep '\-\-\->' | grep -v 'Using cache' | sed -e 's/[ >-]//g' > /tmp/layers.txt
+        docker-compose build lint | grep '\-\-\->' | grep -v 'Using cache' | sed -e 's/[ >-]//g' > /tmp/layers.txt
         docker save $(cat /tmp/layers.txt) | gzip > /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz
 
   - &save-docker-cache
     save_cache:
-      key: docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "composer.lock" }}
+      key: docker-{{ checksum "dumped.env" }}-{{ checksum "Dockerfile" }}-{{ checksum "docker-compose.yml" }}-{{ checksum "go.sum" }}
       paths:
         - /home/circleci/caches
 
@@ -85,13 +85,13 @@ jobs:
     <<: *docker-env
     <<: *docker-default
     environment:
-      GOLANG_VERSION: 1.12.6-alpine3.10
+      GOLANG_TAG: 1.12.6-alpine3.10
 
   go-latest:
     <<: *docker-env
     <<: *docker-default
     environment:
-      GOLANG_VERSION: alpine
+      GOLANG_TAG: alpine
 
   validate-commit-message:
     docker:

@@ -3,9 +3,10 @@ package config
 import (
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/miquido/alertmanager-webhook-forwarder/pkg/utils"
 	"github.com/spf13/viper"
-	"strings"
 )
 
 const (
@@ -49,17 +50,17 @@ func GetChannelObject(provider string, name string) (channelObj interface{}, err
 
 	availableChannels := getAvailableChannels(provider)
 	if len(availableProviders) == 0 {
-		return nil, errors.New(fmt.Sprintf(
+		return nil, fmt.Errorf(
 			"currently there are no templates defined in %s provider (available template providers: %s)",
 			provider,
 			strings.Join(availableProviders, ", "),
-		))
+		)
 	}
 
-	return nil, errors.New(fmt.Sprintf(
+	return nil, fmt.Errorf(
 		"channel \"%s\" from provider \"%s\" has not been found (available templates: %s)",
 		name,
 		provider,
 		strings.Join(availableChannels, ", "),
-	))
+	)
 }

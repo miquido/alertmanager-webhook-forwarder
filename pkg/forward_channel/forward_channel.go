@@ -1,8 +1,8 @@
 package forward_channel
 
 import (
-	"errors"
 	"fmt"
+
 	"github.com/miquido/alertmanager-webhook-forwarder/pkg/config"
 	"github.com/mitchellh/mapstructure"
 	"k8s.io/klog"
@@ -36,14 +36,14 @@ func NewForwardChannelFromConfig(provider string, channelName string) (forwardCh
 
 	channelConfigObject, err := config.GetChannelObject(provider, channelName)
 	if err != nil {
-		err = errors.New(fmt.Sprintf("Config \"%s.%s\": %s", provider, channelName, err))
+		err = fmt.Errorf("Config \"%s.%s\": %s", provider, channelName, err)
 		klog.Error(err)
 		return nil, err
 	}
 
 	err = mapstructure.Decode(channelConfigObject, &forwardChannel.Config)
 	if err != nil {
-		err = errors.New(fmt.Sprintf("Config \"%s.%s\" is invalid: %s", provider, channelName, err))
+		err = fmt.Errorf("Config \"%s.%s\" is invalid: %s", provider, channelName, err)
 		klog.Error(err)
 	}
 

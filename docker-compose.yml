@@ -16,6 +16,9 @@ services:
 
   lint:
     image: "${REGISTRY:-docker.io}/${NAMESPACE:-miquido}/${APP:-alertmanager-webhook-forwarder-lint}:${TAG:-local}"
+    command:
+      - run
+      - --max-same-issues=30
     build:
       context: .
       target: Lint

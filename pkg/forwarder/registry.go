@@ -1,8 +1,8 @@
 package forwarder
 
 import (
-	"errors"
 	"fmt"
+
 	"github.com/miquido/alertmanager-webhook-forwarder/pkg/utils"
 )
 
@@ -24,5 +24,5 @@ func Get(provider string) (f *Forwarder, err error) {
 	}
 
 	m, _ := utils.InterfaceToStringMapOfInterfaces(mainRegistry.Forwarders)
-	return nil, errors.New(fmt.Sprintf("provider \"%s\" has not got any attached forwarder (currently ready providers: %s)", provider, utils.GetListOfKeys(m)))
+	return nil, fmt.Errorf("provider \"%s\" has not got any attached forwarder (currently ready providers: %s)", provider, utils.GetListOfKeys(m))
 }
