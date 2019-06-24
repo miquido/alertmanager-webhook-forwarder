@@ -1,0 +1,52 @@
+POST http://localhost:8080/v1/webhook/hangouts-chat?channel=test&template=alertmanager
+Content-Type: application/json
+
+{
+    "version": "4",
+    "groupKey": "groupkey",
+    "status": "firing",
+    "receiver": "webhook-reciever",
+    "groupLabels": {
+        "alertname": "TestAlert",
+        "groupLabel": "GroupLabel"
+    },
+    "commonLabels": {
+        "commonLabel": "CommonLabel"
+    },
+    "commonAnnotations": {
+        "commonAnnotation": "CommonAnnotation"
+    },
+    "externalURL": "https://google.com",
+    "alerts": [
+        {
+            "status": "firing",
+            "labels": {
+                "alertname": "TestAlert1",
+                "severity": "critical"
+            },
+            "annotations": {
+                "message": "TestAlert1 Message rrrrrrrrrrrrrrrrrrrrr",
+                "runbook_url": "http://runbook.docs/url"
+            },
+            "startsAt": "2002-10-02T15:00:00.05Z",
+            "endsAt": "2002-11-02T15:00:00.05Z",
+            "generatorURL": "https://google.pl"
+        },
+        {
+            "status": "firing",
+            "labels": {
+                "alertname": "TestAlert2",
+                "severity": "warning"
+            },
+            "annotations": {
+                "message": "TestAlert2 Message really long text really long text really long text really long text really long text really long text really long text really long text really long text really long text",
+                "runbook_url": "http://runbook.docs2/url"
+            },
+            "startsAt": "2002-10-02T15:00:00.05Z",
+            "endsAt": "2002-11-02T15:00:00.05Z",
+            "generatorURL": "https://google.pl"
+        }
+    ]
+}
+
+###

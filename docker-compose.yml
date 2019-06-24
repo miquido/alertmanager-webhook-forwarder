@@ -1,0 +1,46 @@
+version: "3.6"
+x-env-aliases:
+  - &GOLANG_TAG
+    GOLANG_TAG: "${GOLANG_TAG:-1.12.6-alpine3.9}"
+  - &GOLANGCI_LINT_VERSION
+    GOLANGCI_LINT_VERSION: "${GOLANGCI_LINT_VERSION:-v1.17.1}"
+
+services:
+  go:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-miquido}/${APP:-alertmanager-webhook-forwarder-go}:${TAG:-local}"
+    build:
+      context: .
+      target: Go
+      args:
+        <<: *GOLANG_TAG
+
+  lint:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-miquido}/${APP:-alertmanager-webhook-forwarder-lint}:${TAG:-local}"
+    build:
+      context: .
+      target: Lint
+      args:
+        <<: *GOLANG_TAG
+        <<: *GOLANGCI_LINT_VERSION
+
+  cli:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-miquido}/${APP:-alertmanager-webhook-forwarder}:${TAG:-local}"
+    build:
+      context: .
+      target: Cli
+      args:
+        <<: *GOLANG_TAG
+
+  server:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-miquido}/${APP:-alertmanager-webhook-forwarder}:${TAG:-local}"
+    build:
+      context: .
+      target: Cli
+      args:
+        <<: *GOLANG_TAG
+    command:
+      - serve
+      - host=0.0.0.0
+      - port=8080
+    ports:
+      - 8080:8080

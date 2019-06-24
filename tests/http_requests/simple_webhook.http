@@ -1,0 +1,10 @@
+POST http://localhost:8080/v1/webhook/hangouts-chat?channel=thread&template=simpleWebhook
+Content-Type: application/json
+
+{
+    "some": {
+        "text": "Hello!!!!!!!!!"
+    }
+}
+
+###
