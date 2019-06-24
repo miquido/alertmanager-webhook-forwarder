@@ -60,6 +60,15 @@ aliases:
       paths:
         - /home/circleci/caches
 
+  - &get-current-version-env
+    run:
+      name: Export current version from tag to env variable
+      command: |-
+        CURRENT_VERSION="$(git tag -l | sort -V -r | head -1 | sed -E 's/v(.*)/\1/')"
+        if [ "" == "$CURRENT_VERSION" ]; then CURRENT_VERSION="0.0.0"; fi
+        echo "CURRENT_VERSION=$CURRENT_VERSION"
+        echo "export CURRENT_VERSION='$CURRENT_VERSION'" >> $BASH_ENV
+
   # Build environments
   - &docker-env
     working_directory: ~/workdir
@@ -80,6 +89,21 @@ aliases:
       - *export-docker-cache
       - *save-docker-cache
 
+  # Filters
+  - &pull-request-checks-job-filters
+    filters:
+      branches:
+        ignore:
+          - master
+
+  - &release-job-filters
+    filters:
+      tags:
+        ignore: /.*/
+      branches:
+        only:
+          - master
+
 jobs:
   go-default:
     <<: *docker-env
@@ -92,6 +116,21 @@ jobs:
     <<: *docker-default
     environment:
       GOLANG_TAG: alpine
+
+  release-version:
+    docker:
+      - image: node:lts-alpine
+    steps:
+      - run:
+          name: Install deps
+          command: |-
+            apk add --no-cache --quiet git openssh bash coreutils
+            yarn global add conventional-changelog-cli conventional-recommended-bump conventional-github-releaser
+      - checkout
+      - *get-current-version-env
+      - run:
+          name: Run release script
+          command: bash .circleci/release-version.sh
 
   validate-commit-message:
     docker:
@@ -109,6 +148,27 @@ workflows:
   version: 2.1
   pull-request-checks:
     jobs:
-      - validate-commit-message
-      - go-default
-      - go-latest
+      - validate-commit-message:
+          <<: *pull-request-checks-job-filters
+      - go-default:
+          <<: *pull-request-checks-job-filters
+      - go-latest:
+          <<: *pull-request-checks-job-filters
+  release:
+    jobs:
+      - validate-commit-message:
+          <<: *release-job-filters
+      - go-default:
+          <<: *release-job-filters
+      - go-latest:
+          <<: *release-job-filters
+      - approve-release:
+          type: approval
+          requires:
+            # - go-latest
+            # - go-default
+            - validate-commit-message
+      - release-version:
+          <<: *release-job-filters
+          requires:
+            - approve-release
