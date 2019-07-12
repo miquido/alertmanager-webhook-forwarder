@@ -1,4 +1,4 @@
-ARG GOLANG_TAG="1.12.6-alpine3.10"
+ARG GOLANG_TAG="1.12.7-alpine3.10"
 FROM golang:${GOLANG_TAG} as Go
 RUN apk add --no-cache git g++ musl-dev
 ENV GO111MODULE="on"

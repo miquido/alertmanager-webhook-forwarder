@@ -1,7 +1,7 @@
 version: "3.6"
 x-env-aliases:
   - &GOLANG_TAG
-    GOLANG_TAG: "${GOLANG_TAG:-1.12.6-alpine3.10}"
+    GOLANG_TAG: "${GOLANG_TAG:-1.12.7-alpine3.10}"
   - &GOLANGCI_LINT_VERSION
     GOLANGCI_LINT_VERSION: "${GOLANGCI_LINT_VERSION:-v1.17.1}"
 

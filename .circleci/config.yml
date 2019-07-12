@@ -141,14 +141,14 @@ jobs:
     <<: *docker-default
     environment:
       DOCKER_COMPOSE_SERVICES: lint
-      GOLANG_TAG: 1.12.6-alpine3.10
+      GOLANG_TAG: 1.12.7-alpine3.10
 
   go-latest:
     <<: *docker-env
     <<: *docker-default
     environment:
       DOCKER_COMPOSE_SERVICES: lint
-      GOLANG_TAG: 1.12.6-alpine3.10
+      GOLANG_TAG: 1.12.7-alpine3.10
 
   release-version:
     docker:
