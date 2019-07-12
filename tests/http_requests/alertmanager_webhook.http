@@ -45,6 +45,20 @@ Content-Type: application/json
             "startsAt": "2002-10-02T15:00:00.05Z",
             "endsAt": "2002-11-02T15:00:00.05Z",
             "generatorURL": "https://google.pl"
+        },
+        {
+            "status": "resolved",
+            "labels": {
+                "alertname": "TestAlert2",
+                "severity": "warning"
+            },
+            "annotations": {
+                "message": "TestAlert2 Message",
+                "runbook_url": "http://runbook.docs2/url"
+            },
+            "startsAt": "2002-10-02T15:00:00.05Z",
+            "endsAt": "2002-11-02T15:00:00.05Z",
+            "generatorURL": "https://google.pl"
         }
     ]
 }

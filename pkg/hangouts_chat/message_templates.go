@@ -59,7 +59,14 @@ var DefaultTemplateAlertmanger = message_template.MessageTemplate{
 	Type: message_template.Jsonnet,
 	Template: `
 local input = std.extVar('input');
+
 local alerts = input.alerts;
+local graphIconUrl = 'https://k911.github.io/alertmanager-webhook-forwarder/icons/graph.png';
+local bookIconUrl = 'https://k911.github.io/alertmanager-webhook-forwarder/icons/book.png';
+local alertFiringIconUrl = 'https://k911.github.io/alertmanager-webhook-forwarder/icons/alert_firing.png';
+local alertResolvedIconUrl = 'https://k911.github.io/alertmanager-webhook-forwarder/icons/alert_resolved.png';
+local prometheusAlertManagerIconUrl = 'https://k911.github.io/alertmanager-webhook-forwarder/icons/prometheus_logo.png';
+
 local iconsForLabelsAndAnnotations = {
     severity: "BOOKMARK",
     message: "DESCRIPTION",
@@ -99,6 +106,38 @@ local makeWidgets(resources) = std.flattenArrays([
     for name in std.objectFields(resources)
 ]);
 
+local makeOpenGraphButton(alert) =
+    if std.objectHas(alert, 'generatorURL') then [
+        {
+            imageButton: {
+                name: 'Open Graph (Prometheus)',
+                iconUrl: graphIconUrl,
+                onClick: {
+                    openLink: {
+                        url: alert.generatorURL,
+                    },
+                },
+            },
+        },
+    ] else [];
+
+local makeOpenRunbookButton(alertAnnotations) =
+    if std.objectHas(alertAnnotations, 'runbook_url') then [
+        {
+            imageButton: {
+                name: 'Open Runbook (Documentation)',
+                iconUrl: bookIconUrl,
+                onClick: {
+                    openLink: {
+                        url: alertAnnotations.runbook_url,
+                    },
+                },
+            },
+        },
+    ] else [];
+
+
+
 {
     cards: [
         {
@@ -106,7 +145,7 @@ local makeWidgets(resources) = std.flattenArrays([
             header: {
                 title: alert.labels.alertname + ' (' + alert.labels.severity + ')',
                 subtitle: alert.annotations.message,
-                imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoaIqZ1iCr1ZGwcJz9W4RVdaIA_AMsyHA6boVH4mEL3bVaRSzT',
+                imageUrl: prometheusAlertManagerIconUrl,
             },
             sections: [
                 {
@@ -121,27 +160,35 @@ local makeWidgets(resources) = std.flattenArrays([
                     widgets: [
                         {
                             keyValue: {
-                                topLabel: 'Starts at',
-                                content: alert.startsAt,
-                                icon: 'CLOCK'
+                                topLabel: 'Status',
+                                content: alert.status,
+                                iconUrl: if alert.status == 'resolved' then alertResolvedIconUrl else alertFiringIconUrl,
                             },
                         },
-                    ],
+                        {
+                            keyValue: {
+                                topLabel: 'Fired at',
+                                content: alert.startsAt,
+                                icon: 'FLIGHT_DEPARTURE'
+                            },
+                        },
+                    ] + (
+                        if alert.status == 'resolved' then [
+                            {
+                               keyValue: {
+                                    topLabel: 'Resolved at',
+                                    content: alert.startsAt,
+                                    icon: 'FLIGHT_ARRIVAL'
+                                },
+                            },
+                        ] else []
+                    ),
                 },
             ] + (
-                if std.objectHas(alert.annotations, 'runbook_url') then [
+                if std.objectHas(alert.annotations, 'runbook_url') || std.objectHas(alert, 'generatorURL') then [
                     {
                         widgets: [{
-                            buttons: [{
-                                textButton: {
-                                    text: 'Open runnbook',
-                                    onClick: {
-                                        openLink: {
-                                            url: alert.annotations.runbook_url,
-                                        },
-                                    },
-                                },
-                            }],
+                            buttons: makeOpenGraphButton(alert) + makeOpenRunbookButton(alert.annotations),
                         }],
                     },
                 ] else []
