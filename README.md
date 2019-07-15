@@ -1,6 +1,7 @@
 # Alertmanager Webhook Forwarder
 
 - [Alertmanager Webhook Forwarder](#Alertmanager-Webhook-Forwarder)
+  - [Build Matrix](#Build-Matrix)
   - [Docker Guide](#Docker-Guide)
     - [Build](#Build)
     - [Run](#Run)
@@ -9,6 +10,16 @@
     - [Init](#Init)
     - [Run](#Run-1)
     - [Build](#Build-1)
+
+---
+
+## Build Matrix
+
+| CI       | Branch                                                                                | Status                                                                                                                                                                                  |
+| -------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CircleCI | [`develop`](https://github.com/miquido/alertmanager-webhook-forwarder/tree/develop)   | [![CircleCI](https://circleci.com/gh/miquido/alertmanager-webhook-forwarder/tree/develop.svg?style=svg)](https://circleci.com/gh/miquido/alertmanager-webhook-forwarder/tree/develop)   |
+| CircleCI | [`master`](https://github.com/miquido/alertmanager-webhook-forwarder/tree/master)     | [![CircleCI](https://circleci.com/gh/miquido/alertmanager-webhook-forwarder/tree/master.svg?style=svg)](https://circleci.com/gh/miquido/alertmanager-webhook-forwarder/tree/master)     |
+| CircleCI | [`gh-pages`](https://github.com/miquido/alertmanager-webhook-forwarder/tree/gh-pages) | [![CircleCI](https://circleci.com/gh/miquido/alertmanager-webhook-forwarder/tree/gh-pages.svg?style=svg)](https://circleci.com/gh/miquido/alertmanager-webhook-forwarder/tree/gh-pages) |
 
 ## Docker Guide
 
