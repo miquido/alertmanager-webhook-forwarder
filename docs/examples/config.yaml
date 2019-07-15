@@ -1,14 +1,16 @@
 channels:
   hangoutsChat:
-    default:
+    myHangoutsChatChannel:
       # https://developers.google.com/hangouts/chat/how-tos/webhooks
       url: https://chat.googleapis.com/v1/spaces/CHAMGE_ME_SPACE_ID/messages?key=CHANGE_ME_KEY&token=CHANGE_ME_TOKEN
+
+      # If you wish to post messages to single hangouts chat thread, uncommend bellow line and enter its ID
       # thread: CHANGE_ME_THREAD_ID
 
 templates:
   hangoutsChat:
-    simpleWebhook:
-      type: gotemplate-yaml
+    myTemplateName:
+      type: gotemplate-yaml # see: pkg/hangouts_chat/message_templates.go for examples of other formats
       template: |-
         text:
           Hi, <users/all>!!!
