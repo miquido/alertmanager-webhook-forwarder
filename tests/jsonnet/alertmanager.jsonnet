@@ -62,11 +62,11 @@ local input = {
 };
 
 local alerts = input.alerts;
-local graphIconUrl = 'https://k911.github.io/alertmanager-webhook-forwarder/icons/graph.png';
-local bookIconUrl = 'https://k911.github.io/alertmanager-webhook-forwarder/icons/book.png';
-local alertFiringIconUrl = 'https://k911.github.io/alertmanager-webhook-forwarder/icons/alert_firing.png';
-local alertResolvedIconUrl = 'https://k911.github.io/alertmanager-webhook-forwarder/icons/alert_resolved.png';
-local prometheusAlertManagerIconUrl = 'https://k911.github.io/alertmanager-webhook-forwarder/icons/prometheus_logo.png';
+local graphIconUrl = 'https://miquido.github.io/alertmanager-webhook-forwarder/icons/graph.png';
+local bookIconUrl = 'https://miquido.github.io/alertmanager-webhook-forwarder/icons/book.png';
+local alertFiringIconUrl = 'https://miquido.github.io/alertmanager-webhook-forwarder/icons/alert_firing.png';
+local alertResolvedIconUrl = 'https://miquido.github.io/alertmanager-webhook-forwarder/icons/alert_resolved.png';
+local prometheusAlertManagerIconUrl = 'https://miquido.github.io/alertmanager-webhook-forwarder/icons/prometheus_logo.png';
 
 local iconsForLabelsAndAnnotations = {
     severity: "BOOKMARK",
