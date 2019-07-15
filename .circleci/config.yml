@@ -1,0 +1,20 @@
+version: 2.1
+
+jobs:
+  validate-commit-message:
+    docker:
+      - image: node:lts-alpine
+    steps:
+      - checkout
+      - run:
+          name: Install commitlint
+          command: yarn global add @commitlint/cli @commitlint/config-conventional
+      - run:
+          name: Validate commit message format
+          command: commitlint --from=HEAD~1
+
+workflows:
+  version: 2.1
+  gh-pages-pr-checks:
+    jobs:
+      - validate-commit-message
