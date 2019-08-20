@@ -178,7 +178,7 @@ local makeOpenRunbookButton(alertAnnotations) =
                             {
                                keyValue: {
                                     topLabel: 'Resolved at',
-                                    content: alert.startsAt,
+                                    content: alert.endsAt,
                                     icon: 'FLIGHT_ARRIVAL'
                                 },
                             },
