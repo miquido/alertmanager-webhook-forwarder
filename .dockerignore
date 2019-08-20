@@ -3,3 +3,4 @@
 !/pkg
 !go.*
 !*.go
+!.golangci.yml

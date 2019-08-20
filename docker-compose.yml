@@ -1,7 +1,7 @@
 version: "3.6"
 x-env-aliases:
   - &GOLANG_TAG
-    GOLANG_TAG: "${GOLANG_TAG:-1.12.7-alpine3.10}"
+    GOLANG_TAG: "${GOLANG_TAG:-1.12.9-alpine3.10}"
   - &GOLANGCI_LINT_VERSION
     GOLANGCI_LINT_VERSION: "${GOLANGCI_LINT_VERSION:-v1.17.1}"
 
@@ -16,9 +16,6 @@ services:
 
   lint:
     image: "${REGISTRY:-docker.io}/${NAMESPACE:-miquido}/${APP:-alertmanager-webhook-forwarder-lint}:${TAG:-local}"
-    command:
-      - run
-      - --max-same-issues=30
     build:
       context: .
       target: Lint
