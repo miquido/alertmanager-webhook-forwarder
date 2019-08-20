@@ -6,7 +6,7 @@ aliases:
     run:
       name: Dump env for hash
       command: |-
-        echo "GOLANG_TAG=GOLANG_TAG" >> dumped.env;
+        echo "GOLANG_TAG=$GOLANG_TAG" >> dumped.env;
         cat dumped.env;
 
   - &restore-docker-cache
