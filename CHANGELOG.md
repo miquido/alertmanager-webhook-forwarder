@@ -1,4 +1,19 @@
 <a name=""></a>
+# [](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.2.2...v) (2019-08-20)
+
+
+
+<a name="0.2.2"></a>
+## [0.2.2](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.2.1...v0.2.2) (2019-08-20)
+
+
+### Bug Fixes
+
+* **hangouts-chat:** Use "endsAt" property instead of "startsAt" to show date of resolved alert ([39a73d1](https://github.com/miquido/alertmanager-webhook-forwarder/commit/39a73d1))
+
+
+
+<a name=""></a>
 # [](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.2.1...v) (2019-07-15)
 
 
