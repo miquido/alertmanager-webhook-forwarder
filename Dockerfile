@@ -7,12 +7,10 @@ ENTRYPOINT ["go"]
 COPY go.mod go.sum ./
 RUN go mod download
 RUN go mod verify
-
-COPY main.go ./
 COPY cmd ./cmd
 COPY pkg ./pkg
 ARG BINARY_NAME="alertmanager-webhook-forwarder"
-ARG MAIN_GO="main.go"
+ARG MAIN_GO="cmd/${BINARY_NAME}/main.go"
 RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
     go build -a -tags netgo -ldflags "-w" \
     -o ${BINARY_NAME} ${MAIN_GO}

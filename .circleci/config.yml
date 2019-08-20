@@ -6,7 +6,7 @@ aliases:
     run:
       name: Dump env for hash
       command: |-
-        echo "GOLANG_VERSION=$GOLANG_VERSION" >> dumped.env;
+        echo "GOLANG_TAG=GOLANG_TAG" >> dumped.env;
         cat dumped.env;
 
   - &restore-docker-cache
@@ -32,19 +32,24 @@ aliases:
   - &docker-compose-build
     run:
       name: Docker-Compose Build
-      command: docker-compose build --pull "$DOCKER_COMPOSE_SERVICES"
+      command: docker-compose build --pull $DOCKER_COMPOSE_SERVICES
 
   - &code-style-analysis
     run:
       name: Code style analysis
       command: docker-compose run --rm lint
 
+  - &binary-execution-test
+    run:
+      name: Checks whether binary executes properly (should print help message)
+      command: docker-compose run --rm cli
+
   - &export-docker-cache
     run:
       name: Export Docker image layer cache
       command: |-
         mkdir -p /home/circleci/caches
-        docker-compose build "$DOCKER_COMPOSE_SERVICES" | grep '\-\-\->' | grep -v 'Using cache' | sed -e 's/[ >-]//g' > /tmp/layers.txt
+        docker-compose build $DOCKER_COMPOSE_SERVICES | grep '\-\-\->' | grep -v 'Using cache' | sed -e 's/[ >-]//g' > /tmp/layers.txt
         docker save $(cat /tmp/layers.txt) | gzip > /home/circleci/caches/${CIRCLE_PROJECT_REPONAME}.tar.gz
 
   - &save-docker-cache
@@ -77,7 +82,7 @@ aliases:
   - &docker-compose-push
     run:
       name: Push built image to docker registry
-      command: docker-compose push "$DOCKER_COMPOSE_SERVICES"
+      command: docker-compose push $DOCKER_COMPOSE_SERVICES
 
   # Build environments
   - &docker-env
@@ -95,6 +100,7 @@ aliases:
       - *restore-docker-cache
       - *load-docker-cache
       - *docker-compose-build
+      - *binary-execution-test
       - *code-style-analysis
       - *export-docker-cache
       - *save-docker-cache
@@ -140,14 +146,14 @@ jobs:
     <<: *docker-env
     <<: *docker-default
     environment:
-      DOCKER_COMPOSE_SERVICES: lint
+      DOCKER_COMPOSE_SERVICES: "cli lint"
       GOLANG_TAG: 1.12-alpine3.10
 
   go-latest:
     <<: *docker-env
     <<: *docker-default
     environment:
-      DOCKER_COMPOSE_SERVICES: lint
+      DOCKER_COMPOSE_SERVICES: "cli lint"
       GOLANG_TAG: alpine
 
   release-version:
