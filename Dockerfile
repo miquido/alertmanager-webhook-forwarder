@@ -1,4 +1,4 @@
-ARG GOLANG_TAG="1.12.9-alpine3.10"
+ARG GOLANG_TAG="1.13.1-alpine3.10"
 FROM golang:${GOLANG_TAG} as Go
 RUN apk add --no-cache git g++ musl-dev
 ENV GO111MODULE="on"
@@ -25,7 +25,7 @@ CMD ["help"]
 VOLUME ["/tmp"]
 
 FROM Go as Lint
-ARG GOLANGCI_LINT_VERSION="v1.17.1"
+ARG GOLANGCI_LINT_VERSION="v1.19.1"
 RUN wget -O - -q https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin ${GOLANGCI_LINT_VERSION}
 COPY .golangci.yml ./.golangci.yml
 ENTRYPOINT ["golangci-lint"]

@@ -1,9 +1,9 @@
 version: "3.6"
 x-env-aliases:
   - &GOLANG_TAG
-    GOLANG_TAG: "${GOLANG_TAG:-1.12.9-alpine3.10}"
+    GOLANG_TAG: "${GOLANG_TAG:-1.13.1-alpine3.10}"
   - &GOLANGCI_LINT_VERSION
-    GOLANGCI_LINT_VERSION: "${GOLANGCI_LINT_VERSION:-v1.17.1}"
+    GOLANGCI_LINT_VERSION: "${GOLANGCI_LINT_VERSION:-v1.19.1}"
 
 services:
   go:
