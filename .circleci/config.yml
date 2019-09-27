@@ -147,7 +147,7 @@ jobs:
     <<: *docker-default
     environment:
       DOCKER_COMPOSE_SERVICES: "cli lint"
-      GOLANG_TAG: 1.12-alpine3.10
+      GOLANG_TAG: 1.13.1-alpine3.10
 
   go-latest:
     <<: *docker-env
@@ -187,7 +187,7 @@ jobs:
     <<: *docker-env
     <<: *docker-release
     environment:
-      GOLANG_TAG: 1.12.9-alpine3.10
+      GOLANG_TAG: 1.13.1-alpine3.10
       APP: alertmanager-webhook-forwarder
       DOCKER_COMPOSE_SERVICES: cli
 

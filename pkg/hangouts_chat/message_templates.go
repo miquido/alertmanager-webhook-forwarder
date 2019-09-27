@@ -77,6 +77,28 @@ local findIconForLabelOrAnnoation(key) = if std.objectHas(iconsForLabelsAndAnnot
 then iconsForLabelsAndAnnotations[key]
 else 'STAR';
 
+local makeKVWidget(name, content) = [{
+    keyValue: {
+        topLabel: name,
+        content: content,
+        icon: findIconForLabelOrAnnoation(name),
+    }
+}];
+
+local makeLongWidget(name, content) = [
+    {
+        keyValue: {
+            content: name,
+            icon: findIconForLabelOrAnnoation(name),
+        }
+    },
+    {
+        textParagraph: {
+            text: content,
+        }
+    }
+];
+
 local makeWidgets(resources) = std.flattenArrays([
     if std.length(resources[name]) > 40
     then makeLongWidget(name, resources[name])
