@@ -77,34 +77,17 @@ local findIconForLabelOrAnnoation(key) = if std.objectHas(iconsForLabelsAndAnnot
 then iconsForLabelsAndAnnotations[key]
 else 'STAR';
 
-local makeKVWidget(name, content) = [{
-    keyValue: {
-        topLabel: name,
-        content: content,
-        icon: findIconForLabelOrAnnoation(name),
-    }
-}];
-
-local makeLongWidget(name, content) = [
-    {
-        keyValue: {
-            content: name,
-            icon: findIconForLabelOrAnnoation(name),
-        }
-    },
-    {
-        textParagraph: {
-            text: content,
-        }
-    }
-];
-
 local makeWidgets(resources) = std.flattenArrays([
     if std.length(resources[name]) > 40
     then makeLongWidget(name, resources[name])
     else makeKVWidget(name, resources[name])
     for name in std.objectFields(resources)
 ]);
+
+local subtitle(annotations) =
+    if std.objectHas(annotations, 'summary') then annotations.summary
+    else if std.objectHas(annotations, 'message') then annotations.message
+    else '';
 
 local makeOpenGraphButton(alert) =
     if std.objectHas(alert, 'generatorURL') then [
@@ -144,7 +127,7 @@ local makeOpenRunbookButton(alertAnnotations) =
             name: alert.labels.alertname,
             header: {
                 title: alert.labels.alertname + ' (' + alert.labels.severity + ')',
-                subtitle: alert.annotations.message,
+                subtitle: subtitle(alert.annotations),
                 imageUrl: prometheusAlertManagerIconUrl,
             },
             sections: [
