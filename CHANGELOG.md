@@ -1,4 +1,19 @@
 <a name=""></a>
+# [](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.2.3...v) (2019-09-30)
+
+
+
+<a name="0.2.3"></a>
+## [0.2.3](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.2.2...v0.2.3) (2019-09-30)
+
+
+### Bug Fixes
+
+* **alertmanager:** Fix subtitle generation HangoutsChat template when message annotation is not set ([051f209](https://github.com/miquido/alertmanager-webhook-forwarder/commit/051f209))
+
+
+
+<a name=""></a>
 # [](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.2.2...v) (2019-08-20)
 
 
