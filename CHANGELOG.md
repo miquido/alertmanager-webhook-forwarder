@@ -83,3 +83,11 @@
 
 
 
+## [0.2.4](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.2.3...v0.2.4) (2019-10-17)
+
+[Full changelog](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.2.3...v0.2.4)
+
+### Miscellaneous
+
+* Minor fixes
+
