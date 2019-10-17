@@ -44,3 +44,19 @@ services:
       - port=8080
     ports:
       - 8080:8080
+
+  releaser:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-miquido}/${APP:-alertmanager-webhook-forwarder}-releaser:${TAG:-local}"
+    build:
+      context: ./.circleci
+    environment:
+      DRY_RUN: "${DRY_RUN:-1}"
+      GH_REPOSITORY: "${GH_REPOSITORY:-miquido/alertmanager-webhook-forwarder}"
+      GH_COMMITER_NAME: "${GH_COMMITER_NAME:-k911}"
+      GH_COMMITER_EMAIL: "${GH_COMMITER_EMAIL:-konradobal@gmail.com}"
+      GH_TOKEN: "${GH_TOKEN:-}"
+      GH_RELEASE_DRAFT: "${GH_RELEASE_DRAFT:-false}"
+      GH_RELEASE_PRERELEASE: "${GH_RELEASE_PRERELEASE:-false}"
+    volumes:
+      - "./.git:/usr/src/app/.git:rw"
+      - "./CHANGELOG.md:/usr/src/app/CHANGELOG.md:rw"
