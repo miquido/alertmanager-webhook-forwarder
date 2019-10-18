@@ -141,8 +141,6 @@ local makeOpenRunbookButton(alertAnnotations) =
         },
     ] else [];
 
-
-
 {
     cards: [
         {
@@ -216,6 +214,76 @@ local makeOpenRunbookButton(alertAnnotations) =
             }],
         }],
     }],
+}
+`,
+}
+
+// DefaultTemplateFabfuelECSDeploy Hangouts Chat Message Template
+// See:
+//   - https://github.com/fabfuel/ecs-deploy
+//   - https://github.com/fabfuel/ecs-deploy/blob/develop/ecs_deploy/slack.py
+var DefaultTemplateFabfuelECSDeploy = message_template.MessageTemplate{
+	Type: message_template.Jsonnet,
+	Template: `
+local input = std.extVar('input');
+
+local iconsForLabelsAndAnnotations = {
+    Cluster: "BOOKMARK",
+    Service: "DESCRIPTION",
+};
+
+local findIconForLabelOrAnnoation(key) = if std.objectHas(iconsForLabelsAndAnnotations, key)
+then iconsForLabelsAndAnnotations[key]
+else 'STAR';
+
+local makeKVWidget(name, content) = [{
+    keyValue: {
+        topLabel: name,
+        content: content,
+        icon: findIconForLabelOrAnnoation(name),
+    }
+}];
+
+local makeLongWidget(name, content) = [
+    {
+        keyValue: {
+            content: name,
+            icon: findIconForLabelOrAnnoation(name),
+        }
+    },
+    {
+        textParagraph: {
+            text: content,
+        }
+    }
+];
+
+local makeWidgets(resources) = std.flattenArrays([
+    if std.length(resources[name]) > 40
+    then makeLongWidget(name, resources[name])
+    else makeKVWidget(name, resources[name])
+    for name in std.objectFields(resources)
+]);
+
+local attachment = input.attachments[0];
+local fieldsMap = std.foldl(function(x, y) x { [y.title]: y.value }, attachment.fields, {});
+
+{
+    cards: [
+        {
+            name: input.username,
+            header: {
+                title: attachment.pretext,
+                imageUrl: 'https://miquido.github.io/alertmanager-webhook-forwarder/icons/aws_ecs_icon.png',
+            },
+            sections: [
+                {
+                    header: 'Details',
+                    widgets: makeWidgets(fieldsMap),
+                },
+            ]
+        }
+    ]
 }
 `,
 }
