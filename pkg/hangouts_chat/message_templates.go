@@ -68,9 +68,9 @@ local alertResolvedIconUrl = 'https://miquido.github.io/alertmanager-webhook-for
 local prometheusAlertManagerIconUrl = 'https://miquido.github.io/alertmanager-webhook-forwarder/icons/prometheus_logo.png';
 
 local iconsForLabelsAndAnnotations = {
-    severity: "BOOKMARK",
-    message: "DESCRIPTION",
-    alertname: "TICKET",
+  severity: 'BOOKMARK',
+  message: 'DESCRIPTION',
+  alertname: 'TICKET',
 };
 
 local findIconForLabelOrAnnoation(key) = if std.objectHas(iconsForLabelsAndAnnotations, key)
@@ -78,142 +78,142 @@ then iconsForLabelsAndAnnotations[key]
 else 'STAR';
 
 local makeKVWidget(name, content) = [{
-    keyValue: {
-        topLabel: name,
-        content: content,
-        icon: findIconForLabelOrAnnoation(name),
-    }
+  keyValue: {
+    topLabel: name,
+    content: content,
+    icon: findIconForLabelOrAnnoation(name),
+  },
 }];
 
 local makeLongWidget(name, content) = [
-    {
-        keyValue: {
-            content: name,
-            icon: findIconForLabelOrAnnoation(name),
-        }
+  {
+    keyValue: {
+      content: name,
+      icon: findIconForLabelOrAnnoation(name),
     },
-    {
-        textParagraph: {
-            text: content,
-        }
-    }
+  },
+  {
+    textParagraph: {
+      text: content,
+    },
+  },
 ];
 
 local makeWidgets(resources) = std.flattenArrays([
-    if std.length(resources[name]) > 40
-    then makeLongWidget(name, resources[name])
-    else makeKVWidget(name, resources[name])
-    for name in std.objectFields(resources)
+  if std.length(resources[name]) > 40
+  then makeLongWidget(name, resources[name])
+  else makeKVWidget(name, resources[name])
+  for name in std.objectFields(resources)
 ]);
 
 local subtitle(annotations) =
-    if std.objectHas(annotations, 'summary') then annotations.summary
-    else if std.objectHas(annotations, 'message') then annotations.message
-    else '';
+  if std.objectHas(annotations, 'summary') then annotations.summary
+  else if std.objectHas(annotations, 'message') then annotations.message
+  else '';
 
 local makeOpenGraphButton(alert) =
-    if std.objectHas(alert, 'generatorURL') then [
-        {
-            imageButton: {
-                name: 'Open Graph (Prometheus)',
-                iconUrl: graphIconUrl,
-                onClick: {
-                    openLink: {
-                        url: alert.generatorURL,
-                    },
-                },
-            },
+  if std.objectHas(alert, 'generatorURL') then [
+    {
+      imageButton: {
+        name: 'Open Graph (Prometheus)',
+        iconUrl: graphIconUrl,
+        onClick: {
+          openLink: {
+            url: alert.generatorURL,
+          },
         },
-    ] else [];
+      },
+    },
+  ] else [];
 
 local makeOpenRunbookButton(alertAnnotations) =
-    if std.objectHas(alertAnnotations, 'runbook_url') then [
-        {
-            imageButton: {
-                name: 'Open Runbook (Documentation)',
-                iconUrl: bookIconUrl,
-                onClick: {
-                    openLink: {
-                        url: alertAnnotations.runbook_url,
-                    },
-                },
-            },
+  if std.objectHas(alertAnnotations, 'runbook_url') then [
+    {
+      imageButton: {
+        name: 'Open Runbook (Documentation)',
+        iconUrl: bookIconUrl,
+        onClick: {
+          openLink: {
+            url: alertAnnotations.runbook_url,
+          },
         },
-    ] else [];
+      },
+    },
+  ] else [];
 
 {
-    cards: [
+  cards: [
+    {
+      name: alert.labels.alertname,
+      header: {
+        title: alert.labels.alertname + ' (' + alert.labels.severity + ')',
+        subtitle: subtitle(alert.annotations),
+        imageUrl: prometheusAlertManagerIconUrl,
+      },
+      sections: [
         {
-            name: alert.labels.alertname,
-            header: {
-                title: alert.labels.alertname + ' (' + alert.labels.severity + ')',
-                subtitle: subtitle(alert.annotations),
-                imageUrl: prometheusAlertManagerIconUrl,
+          header: 'Labels',
+          widgets: makeWidgets(alert.labels),
+        },
+        {
+          header: 'Annotations',
+          widgets: makeWidgets(alert.annotations),
+        },
+        {
+          widgets: [
+            {
+              keyValue: {
+                topLabel: 'Status',
+                content: alert.status,
+                iconUrl: if alert.status == 'resolved' then alertResolvedIconUrl else alertFiringIconUrl,
+              },
             },
-            sections: [
-                {
-                    header: 'Labels',
-                    widgets: makeWidgets(alert.labels),
+            {
+              keyValue: {
+                topLabel: 'Fired at',
+                content: alert.startsAt,
+                icon: 'FLIGHT_DEPARTURE',
+              },
+            },
+          ] + (
+            if alert.status == 'resolved' then [
+              {
+                keyValue: {
+                  topLabel: 'Resolved at',
+                  content: alert.endsAt,
+                  icon: 'FLIGHT_ARRIVAL',
                 },
-                {
-                    header: 'Annotations',
-                    widgets: makeWidgets(alert.annotations),
-                },
-                {
-                    widgets: [
-                        {
-                            keyValue: {
-                                topLabel: 'Status',
-                                content: alert.status,
-                                iconUrl: if alert.status == 'resolved' then alertResolvedIconUrl else alertFiringIconUrl,
-                            },
-                        },
-                        {
-                            keyValue: {
-                                topLabel: 'Fired at',
-                                content: alert.startsAt,
-                                icon: 'FLIGHT_DEPARTURE'
-                            },
-                        },
-                    ] + (
-                        if alert.status == 'resolved' then [
-                            {
-                               keyValue: {
-                                    topLabel: 'Resolved at',
-                                    content: alert.endsAt,
-                                    icon: 'FLIGHT_ARRIVAL'
-                                },
-                            },
-                        ] else []
-                    ),
-                },
-            ] + (
-                if std.objectHas(alert.annotations, 'runbook_url') || std.objectHas(alert, 'generatorURL') then [
-                    {
-                        widgets: [{
-                            buttons: makeOpenGraphButton(alert) + makeOpenRunbookButton(alert.annotations),
-                        }],
-                    },
-                ] else []
-            ),
-        }
-        for alert in alerts
-    ] + [{
-        sections: [{
+              },
+            ] else []
+          ),
+        },
+      ] + (
+        if std.objectHas(alert.annotations, 'runbook_url') || std.objectHas(alert, 'generatorURL') then [
+          {
             widgets: [{
-                buttons: [{
-                    textButton: {
-                        text: 'Open alertmanager',
-                        onClick: {
-                            openLink: {
-                                url: input.externalURL,
-                            },
-                        },
-                    },
-                }],
+              buttons: makeOpenGraphButton(alert) + makeOpenRunbookButton(alert.annotations),
             }],
+          },
+        ] else []
+      ),
+    }
+    for alert in alerts
+  ] + [{
+    sections: [{
+      widgets: [{
+        buttons: [{
+          textButton: {
+            text: 'Open alertmanager',
+            onClick: {
+              openLink: {
+                url: input.externalURL,
+              },
+            },
+          },
         }],
+      }],
     }],
+  }],
 }
 `,
 }
@@ -228,62 +228,70 @@ var DefaultTemplateFabfuelECSDeploy = message_template.MessageTemplate{
 local input = std.extVar('input');
 
 local iconsForLabelsAndAnnotations = {
-    Cluster: "BOOKMARK",
-    Service: "DESCRIPTION",
+  Cluster: 'BOOKMARK',
+  Service: 'DESCRIPTION',
+  Duration: 'CLOCK',
+  Tag: 'MAP_PIN',
+  Revision: 'MAP_PIN',
 };
 
 local findIconForLabelOrAnnoation(key) = if std.objectHas(iconsForLabelsAndAnnotations, key)
 then iconsForLabelsAndAnnotations[key]
 else 'STAR';
 
+local toString(value) =
+  if !std.isString(value)
+  then '' + value
+  else value;
+
 local makeKVWidget(name, content) = [{
-    keyValue: {
-        topLabel: name,
-        content: content,
-        icon: findIconForLabelOrAnnoation(name),
-    }
+  keyValue: {
+    topLabel: name,
+    content: toString(content),
+    icon: findIconForLabelOrAnnoation(name),
+  },
 }];
 
 local makeLongWidget(name, content) = [
-    {
-        keyValue: {
-            content: name,
-            icon: findIconForLabelOrAnnoation(name),
-        }
+  {
+    keyValue: {
+      content: toString(content),
+      icon: findIconForLabelOrAnnoation(name),
     },
-    {
-        textParagraph: {
-            text: content,
-        }
-    }
+  },
+  {
+    textParagraph: {
+      text: content,
+    },
+  },
 ];
 
 local makeWidgets(resources) = std.flattenArrays([
-    if std.length(resources[name]) > 40
-    then makeLongWidget(name, resources[name])
-    else makeKVWidget(name, resources[name])
-    for name in std.objectFields(resources)
+  if std.isString(resources[name]) && std.length(resources[name]) > 40
+  then makeLongWidget(name, resources[name])
+  else makeKVWidget(name, resources[name])
+  for name in std.objectFields(resources)
 ]);
 
 local attachment = input.attachments[0];
 local fieldsMap = std.foldl(function(x, y) x { [y.title]: y.value }, attachment.fields, {});
 
 {
-    cards: [
+  cards: [
+    {
+      name: input.username,
+      header: {
+        title: attachment.pretext,
+        imageUrl: 'https://miquido.github.io/alertmanager-webhook-forwarder/icons/aws_ecs.png',
+      },
+      sections: [
         {
-            name: input.username,
-            header: {
-                title: attachment.pretext,
-                imageUrl: 'https://miquido.github.io/alertmanager-webhook-forwarder/icons/aws_ecs.png',
-            },
-            sections: [
-                {
-                    header: 'Details',
-                    widgets: makeWidgets(fieldsMap),
-                },
-            ]
-        }
-    ]
+          header: 'Details',
+          widgets: makeWidgets(fieldsMap),
+        },
+      ],
+    },
+  ],
 }
 `,
 }

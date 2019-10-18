@@ -70,7 +70,6 @@ func getSuccessStatusCode(r *http.Request) (statusCode int, err error) {
 	successStatusCodeQuery := r.URL.Query().Get("successStatusCode")
 	if successStatusCodeQuery != "" {
 		statusCode, err = strconv.Atoi(successStatusCodeQuery)
-		klog.Infoln("atoi statusCode: ", statusCode, successStatusCodeQuery)
 		if err != nil {
 			return 0, err
 		}
