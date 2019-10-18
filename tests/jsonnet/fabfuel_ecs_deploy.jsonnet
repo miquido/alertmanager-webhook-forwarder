@@ -72,7 +72,7 @@ local fieldsMap = std.foldl(function(x, y) x { [y.title]: y.value }, attachment.
             name: input.username,
             header: {
                 title: attachment.pretext,
-                imageUrl: 'https://miquido.github.io/alertmanager-webhook-forwarder/icons/aws_ecs_icon.png',
+                imageUrl: 'https://miquido.github.io/alertmanager-webhook-forwarder/icons/aws_ecs.png',
             },
             sections: [
                 {
