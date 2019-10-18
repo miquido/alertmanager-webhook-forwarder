@@ -202,7 +202,7 @@ jobs:
     <<: *docker-env
     <<: *docker-deploy-artifacts
     environment:
-      GOLANG_TAG: 1.13.1-alpine3.10
+      GOLANG_TAG: 1.13.3-alpine3.10
       APP: alertmanager-webhook-forwarder
       DOCKER_COMPOSE_SERVICES: cli
 
