@@ -1,3 +1,11 @@
+## [0.3.1](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.3.0...v0.3.1) (2019-10-18)
+
+[Full changelog](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.3.0...v0.3.1)
+
+### Bug Fixes
+
+* **fabfuel-ecs-deploy:** repair template for deployment finished view ([#11](https://github.com/miquido/alertmanager-webhook-forwarder/issues/11)) ([fb05026](https://github.com/miquido/alertmanager-webhook-forwarder/commit/fb050261269ccb5f7a64c3ffd191ce253de4362d))
+
 # [0.3.0](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.2.4...v0.3.0) (2019-10-18)
 
 [Full changelog](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.2.4...v0.3.0)
