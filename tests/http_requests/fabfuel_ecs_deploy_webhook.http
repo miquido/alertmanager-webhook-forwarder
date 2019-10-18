@@ -1,0 +1,34 @@
+POST http://localhost:8080/v1/webhook/hangouts-chat?channel=test&template=fabfuelECSDeploy&successStatusCode=200
+Content-Type: application/json
+
+{
+  "attachments": [
+    {
+      "color": null,
+      "fields": [
+        {
+          "short": true,
+          "title": "Cluster",
+          "value": "youmap-development-main"
+        },
+        {
+          "short": true,
+          "title": "Service",
+          "value": "youmap-development-api-node"
+        },
+        {
+          "short": true,
+          "title": "Tag",
+          "value": "0.0.1-dev-119"
+        }
+      ],
+      "pretext": "Deployment has started"
+    }
+  ],
+  "username": "ECS Deploy"
+}
+
+###
+feat(server): Add "successStatusCode" query parameter
+
+It could be used to change success status code of http response (some applications require specific status code, e.g.: 200 instead of 204)

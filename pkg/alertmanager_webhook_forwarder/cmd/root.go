@@ -120,6 +120,7 @@ func showDebugInfo() {
 
 func viperSetDefaults() {
 	viper.SetDefault("templates.hangoutsChat.alertmanager", hangouts_chat.DefaultTemplateAlertmanger)
+	viper.SetDefault("templates.hangoutsChat.fabfuelECSDeploy", hangouts_chat.DefaultTemplateFabfuelECSDeploy)
 	viper.SetDefault("templates.hangoutsChat.jsonnet", hangouts_chat.DefaultTemplateJsonnet)
 	viper.SetDefault("templates.hangoutsChat.goTemplateYaml", hangouts_chat.DefaultTemplateGoTemplateYaml)
 	viper.SetDefault("templates.hangoutsChat.goTemplateText", hangouts_chat.DefaultTemplateGoTemplateText)
