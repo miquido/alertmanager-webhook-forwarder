@@ -25,7 +25,7 @@ CMD ["help"]
 VOLUME ["/tmp"]
 
 FROM Go as Lint
-ARG GOLANGCI_LINT_VERSION="v1.19.1"
+ARG GOLANGCI_LINT_VERSION="v1.21.0"
 RUN wget -O - -q https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin ${GOLANGCI_LINT_VERSION}
 COPY .golangci.yml ./.golangci.yml
 ENTRYPOINT ["golangci-lint"]
