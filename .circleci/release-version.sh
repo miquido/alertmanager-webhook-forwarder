@@ -84,7 +84,9 @@ LINES=$((LINES+NEXT_LINES))
 
 # Update CHANGELOG.md
 if [ "0" = "$DRY_RUN" ]; then
-    echo "$CHANGELOG" >> CHANGELOG.md
+    echo "$CHANGELOG" > CHANGELOG.md.tmp
+    cat CHANGELOG.md >> CHANGELOG.md.tmp
+    mv CHANGELOG.md.tmp CHANGELOG.md
 else
     echo "Changelog file: (first $LINES lines)"
     echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
