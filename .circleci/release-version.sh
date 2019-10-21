@@ -22,6 +22,8 @@ fi
 RECOMMENDED_BUMP=$(conventional-recommended-bump -p angular)
 
 # Split version by dots
+V[0]=""
+V[1]=""
 V[2]=""
 IFS='.' read -r -a V <<< "$CURRENT_VERSION"
 
