@@ -54,7 +54,7 @@ services:
       GH_REPOSITORY: "${GH_REPOSITORY:-miquido/alertmanager-webhook-forwarder}"
       GH_COMMITER_NAME: "${GH_COMMITER_NAME:-k911}"
       GH_COMMITER_EMAIL: "${GH_COMMITER_EMAIL:-konradobal@gmail.com}"
-      GH_TOKEN: "${GH_TOKEN:-}"
+      GH_TOKEN: "${GH_TOKEN:-xxxxxxxx}"
       GH_RELEASE_DRAFT: "${GH_RELEASE_DRAFT:-false}"
       GH_RELEASE_PRERELEASE: "${GH_RELEASE_PRERELEASE:-false}"
     volumes:

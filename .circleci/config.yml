@@ -180,6 +180,7 @@ jobs:
     environment:
       DOCKER_COMPOSE_SERVICES: releaser
       DRY_RUN: "1"
+      GH_TOKEN: "xxxx"
 
   validate-commit-message:
     docker:
