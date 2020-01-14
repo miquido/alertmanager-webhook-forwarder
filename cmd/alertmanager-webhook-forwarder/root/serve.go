@@ -1,11 +1,19 @@
 package root
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/handlers"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
+	"time"
 
 	"github.com/miquido/alertmanager-webhook-forwarder/pkg/conditional_runner"
 	"github.com/miquido/alertmanager-webhook-forwarder/pkg/forwarder"
@@ -20,24 +28,73 @@ import (
 var ServeCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Run as HTTP server",
-	Long:  ``,
-	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		host := viper.GetString("server.host")
-		port := viper.GetInt("server.port")
-		address := fmt.Sprintf("%s:%d", host, port)
+	Long:  `
+Run as golang HTTP server with /healthz and /v1/webhook/hangouts-chat endpoints.
 
-		http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-			_, _ = fmt.Fprint(w, "OK")
-		})
-		http.HandleFunc("/v1/webhook/hangouts-chat", providerWebhookHandlerFactory(utils.ProviderHangoutsChat))
-		klog.Infof("Listening on http://%s:%d", host, port)
-		err = http.ListenAndServe(address, nil)
-		if err != nil {
-			klog.Error(err)
+Example:
+
+	# first terminal
+	alertmanager-webhook-forwarder serve
+
+	# second terminal
+	curl http://localhost:8080/healthz
+`,
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		listenHost := viper.GetString("server.host")
+		listenPort := viper.GetInt("server.port")
+		gracefulShutdownTimeout := viper.GetInt("server.gracefulShutdownTimeout")
+		accessLogEnabled := viper.GetBool("server.accessLog.enabled")
+		listenAddress := fmt.Sprintf("%s:%d", listenHost, listenPort)
+
+		// Listen for shutdown signals
+		done := make(chan bool, 1)
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+		// Configure routes
+		router := http.NewServeMux()
+		router.HandleFunc("/healthz", handleHealthz)
+		router.HandleFunc("/v1/webhook/hangouts-chat", providerWebhookHandlerFactory(utils.ProviderHangoutsChat))
+
+		var handler http.Handler
+
+		// Optionally configure Apache-style access logs
+		if accessLogEnabled {
+			handler = handlers.LoggingHandler(os.Stdout, router)
+		} else {
+			handler = router
 		}
 
-		return err
+		// Support HTTP 2 (no TLS)
+		// Note: Graceful Shutdown does not work on h2c (https://github.com/golang/go/issues/26682)
+		http2server := &http2.Server{}
+		handler = h2c.NewHandler(handler, http2server)
+
+		server := &http.Server{
+			Addr:         listenAddress,
+			Handler:      handler,
+			ReadTimeout:  5 * time.Second,
+			WriteTimeout: 10 * time.Second,
+			IdleTimeout:  15 * time.Second,
+		}
+
+		go gracefulShutdown(server, quit, done, gracefulShutdownTimeout)
+
+		klog.Infof("Server is listening on http://%s:%d", listenHost, listenPort)
+		if err = server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			klog.Fatalf("Could not listen on %s: %v\n", listenAddress, err)
+		}
+
+		<-done
+		klog.Info("Server has been stopped")
+
+		return nil
 	},
+}
+
+func handleHealthz(w http.ResponseWriter, _ *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	_, _ = fmt.Fprint(w, "OK")
 }
 
 func providerWebhookHandlerFactory(provider string) func(w http.ResponseWriter, r *http.Request) {
@@ -137,12 +194,31 @@ func providerWebhookHandler(provider string, w http.ResponseWriter, r *http.Requ
 	_, _ = fmt.Fprint(w, "{\"status\":\"accepted\"}")
 }
 
+func gracefulShutdown(server *http.Server, quit <-chan os.Signal, done chan<- bool, timeoutSeconds int) {
+	<-quit
+	klog.Infoln("Server is gracefully shutting down...")
+
+	// Cancel gracefulShutdown after `timeoutSeconds` period
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSeconds) * time.Second)
+	defer cancel()
+
+	server.SetKeepAlivesEnabled(false)
+	if err := server.Shutdown(ctx); err != nil {
+		klog.Fatalf("Could not gracefully shutdown the server: %v", err)
+	}
+	close(done)
+}
+
 func init() {
-	ServeCmd.Flags().String("host", "0.0.0.0", "Host that server should bind to.")
-	ServeCmd.Flags().Int("port", 8080, "Port that server should listen on.")
+	ServeCmd.Flags().String("host", "0.0.0.0", "Host that HTTP server should bind to.")
+	ServeCmd.Flags().Int("port", 8080, "Port that HTTP server should listen on.")
+	ServeCmd.Flags().Int("grace", 30, "Graceful shutdown timeout seconds.")
+	ServeCmd.Flags().Bool("access-log", false, "Enable Apache-style access logs.")
 
 	RootCmd.AddCommand(ServeCmd)
 
 	_ = viper.BindPFlag("server.host", ServeCmd.Flags().Lookup("host"))
 	_ = viper.BindPFlag("server.port", ServeCmd.Flags().Lookup("port"))
+	_ = viper.BindPFlag("server.gracefulShutdownTimeout", ServeCmd.Flags().Lookup("grace"))
+	_ = viper.BindPFlag("server.accessLog.enabled", ServeCmd.Flags().Lookup("access-log"))
 }

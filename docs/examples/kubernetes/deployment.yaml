@@ -31,6 +31,13 @@ spec:
             limits:
               cpu: 300m
               memory: 64Mi
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /usr/src/app/alertmanager-webhook-forwarder
+                  - sleep
+                  - "5"
           readinessProbe:
             httpGet:
               path: /healthz

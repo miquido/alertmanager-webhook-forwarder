@@ -6,7 +6,8 @@ aliases:
     run:
       name: Dump env for hash
       command: |-
-        echo "GOLANG_TAG=$GOLANG_TAG" >> dumped.env;
+        echo "ALPINE_VERSION=ALPINE_VERSION" >> dumped.env;
+        echo "GOLANG_VERSION=GOLANG_VERSION" >> dumped.env;
         cat dumped.env;
 
   - &restore-docker-cache
@@ -158,14 +159,16 @@ jobs:
     <<: *docker-default
     environment:
       DOCKER_COMPOSE_SERVICES: "cli lint"
-      GOLANG_TAG: 1.13.1-alpine3.10
+      ALPINE_VERSION: "3.11"
+      GOLANG_VERSION: "1.13.6"
 
   go-latest:
     <<: *docker-env
     <<: *docker-default
     environment:
       DOCKER_COMPOSE_SERVICES: "cli lint"
-      GOLANG_TAG: alpine
+      ALPINE_VERSION: ""
+      GOLANG_VERSION: "1"
 
   release-version:
     <<: *docker-env
@@ -203,7 +206,8 @@ jobs:
     <<: *docker-env
     <<: *docker-deploy-artifacts
     environment:
-      GOLANG_TAG: 1.13.3-alpine3.10
+      ALPINE_VERSION: "3.11"
+      GOLANG_VERSION: "1.13.6"
       APP: alertmanager-webhook-forwarder
       DOCKER_COMPOSE_SERVICES: cli
 

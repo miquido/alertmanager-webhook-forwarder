@@ -3,9 +3,6 @@ package root
 import (
 	goflag "flag"
 	"fmt"
-	"os"
-	"strconv"
-
 	"github.com/miquido/alertmanager-webhook-forwarder/pkg/conditional_runner"
 	"github.com/miquido/alertmanager-webhook-forwarder/pkg/forwarder"
 	"github.com/miquido/alertmanager-webhook-forwarder/pkg/hangouts_chat"
@@ -16,6 +13,8 @@ import (
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"k8s.io/klog"
+	"os"
+	"strconv"
 )
 
 var cfgFile string
@@ -27,7 +26,7 @@ type viperConfig struct {
 
 var RootCmd = &cobra.Command{
 	Use:           "alertmanager-webhook-forwarder",
-	Short:         "",
+	Short:         "Use subcomamnds.",
 	SilenceUsage:  true,
 	SilenceErrors: true,
 	Long: `
@@ -47,7 +46,6 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(
-		configureVerbosity,
 		configureFlags,
 		initConfig,
 		showDebugInfo,
@@ -62,23 +60,6 @@ func init() {
 	klog.InitFlags(nil)
 	goflag.Parse()
 	flag.CommandLine.AddGoFlagSet(goflag.CommandLine)
-}
-
-func configureVerbosity() {
-	if !verbose {
-		return
-	}
-	vFlag := RootCmd.PersistentFlags().Lookup("v")
-	if vFlag == nil {
-		// not possible
-		return
-	}
-	verbosity := RootCmd.PersistentFlags().Lookup("v").Value.String()
-	if v, err := strconv.Atoi(verbosity); err == nil {
-		if v < 7 {
-			_ = vFlag.Value.Set("7")
-		}
-	}
 }
 
 func configureFlags() {
@@ -108,15 +89,41 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		klog.V(7).Info("Using config file:", viper.ConfigFileUsed())
+	err := viper.ReadInConfig()
+	syncVerbosity()
+	if err == nil {
+		klog.V(7).Info("Using config file: ", viper.ConfigFileUsed())
 	}
 	// else handled by Cobra
+}
+
+func syncVerbosity() {
+	vFlag := RootCmd.PersistentFlags().Lookup("v")
+	if vFlag == nil {
+		// not possible
+		return
+	}
+
+	// Sync verbosity
+	currentVerbosity := RootCmd.PersistentFlags().Lookup("v").Value.String()
+	readInVerbosity := viper.GetInt("verbosity")
+	if v, err := strconv.Atoi(currentVerbosity); err == nil {
+		if verbose {
+			_ = vFlag.Value.Set("7")
+			viper.Set("verbosity", 7)
+		} else {
+			if v != readInVerbosity {
+				_ = vFlag.Value.Set(strconv.Itoa(readInVerbosity))
+				viper.Set("verbosity", readInVerbosity)
+			}
+		}
+	}
 }
 
 func showDebugInfo() {
 	klog.V(7).Infof("dryRun=%t", viper.GetBool("dryRun"))
 	klog.V(7).Infof("verbosity=%d", viper.GetInt("verbosity"))
+	klog.V(7).Infof("v=%s", RootCmd.PersistentFlags().Lookup("v").Value.String())
 
 	// print whole configuration on verbosity >= 10
 	conditional_runner.V(10).DumpYaml("viper config", viperConfig{viper.AllSettings()})
