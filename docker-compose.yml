@@ -1,9 +1,10 @@
 version: "3.6"
-x-env-aliases:
-  - &GOLANG_TAG
-    GOLANG_TAG: "${GOLANG_TAG:-1.13.3-alpine3.10}"
-  - &GOLANGCI_LINT_VERSION
-    GOLANGCI_LINT_VERSION: "${GOLANGCI_LINT_VERSION:-v1.21.0}"
+
+x-aliases:
+  - &DEFAULT_BUILD_ARGS
+    ALPINE_VERSION: "3.11"
+    GOLANG_VERSION: "1.13"
+    GOLANGCI_LINT_VERSION: "1.22.2"
 
 services:
   go:
@@ -12,7 +13,7 @@ services:
       context: .
       target: Go
       args:
-        <<: *GOLANG_TAG
+        <<: *DEFAULT_BUILD_ARGS
 
   lint:
     image: "${REGISTRY:-docker.io}/${NAMESPACE:-miquido}/${APP:-alertmanager-webhook-forwarder-lint}:${TAG:-local}"
@@ -20,28 +21,34 @@ services:
       context: .
       target: Lint
       args:
-        <<: *GOLANG_TAG
-        <<: *GOLANGCI_LINT_VERSION
+        <<: *DEFAULT_BUILD_ARGS
 
   cli:
     image: "${REGISTRY:-docker.io}/${NAMESPACE:-miquido}/${APP:-alertmanager-webhook-forwarder-cli}:${TAG:-local}"
+    user: app
+    privileged: false
+    read_only: true
     build:
       context: .
-      target: Cli
+      target: Runner
       args:
-        <<: *GOLANG_TAG
+        <<: *DEFAULT_BUILD_ARGS
 
   server:
     image: "${REGISTRY:-docker.io}/${NAMESPACE:-miquido}/${APP:-alertmanager-webhook-forwarder-server}:${TAG:-local}"
+    user: app
+    privileged: false
+    read_only: true
     build:
       context: .
-      target: Cli
+      target: Runner
       args:
-        <<: *GOLANG_TAG
+        <<: *DEFAULT_BUILD_ARGS
     command:
       - serve
-      - host=0.0.0.0
-      - port=8080
+      - --config=/etc/config/config.yaml
+    volumes:
+      - "./docs/examples/config.yaml:/etc/config/config.yaml:ro"
     ports:
       - 8080:8080
 
