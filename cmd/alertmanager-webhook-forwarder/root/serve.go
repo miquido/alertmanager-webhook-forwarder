@@ -19,7 +19,7 @@ import (
 // ServeCmd represents the serve command
 var ServeCmd = &cobra.Command{
 	Use:   "serve",
-	Short: "",
+	Short: "Run as HTTP server",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		host := viper.GetString("server.host")

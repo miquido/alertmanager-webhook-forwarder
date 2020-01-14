@@ -60,6 +60,7 @@ func init() {
 
 	// Configure Klog flags
 	klog.InitFlags(nil)
+	goflag.Parse()
 	flag.CommandLine.AddGoFlagSet(goflag.CommandLine)
 }
 
@@ -110,11 +111,14 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		klog.V(7).Info("Using config file:", viper.ConfigFileUsed())
 	}
+	// else handled by Cobra
 }
 
 func showDebugInfo() {
 	klog.V(7).Infof("dryRun=%t", viper.GetBool("dryRun"))
 	klog.V(7).Infof("verbosity=%d", viper.GetInt("verbosity"))
+
+	// print whole configuration on verbosity >= 10
 	conditional_runner.V(10).DumpYaml("viper config", viperConfig{viper.AllSettings()})
 }
 
