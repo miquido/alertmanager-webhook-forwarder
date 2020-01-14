@@ -1,4 +1,4 @@
-package cmd
+package root
 
 import (
 	"github.com/miquido/alertmanager-webhook-forwarder/pkg/forwarder"

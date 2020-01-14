@@ -1,7 +1,9 @@
 package main
 
-import "github.com/miquido/alertmanager-webhook-forwarder/pkg/alertmanager_webhook_forwarder/cmd"
+import (
+	"github.com/miquido/alertmanager-webhook-forwarder/cmd/alertmanager-webhook-forwarder/root"
+)
 
 func main() {
-	cmd.Execute()
+	root.Execute()
 }
