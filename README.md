@@ -31,6 +31,12 @@ docker-compose build --pull
 
 ```sh
 docker-compose run --rm cli help
+
+# or
+docker-compose up server
+
+# 2nd terminal
+curl http://localhost:8080/healthz
 ```
 
 ### Lint

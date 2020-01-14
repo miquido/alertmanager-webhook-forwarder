@@ -1,14 +1,14 @@
 # Kubernetes examples
 
-- [Kubernetes examples](#Kubernetes-examples)
-  - [Alertmanager configuration with Hangouts Chat with default template](#Alertmanager-configuration-with-Hangouts-Chat-with-default-template)
+- [Kubernetes examples](#kubernetes-examples)
+  - [Alertmanager configuration with Hangouts Chat with default template](#alertmanager-configuration-with-hangouts-chat-with-default-template)
 
 ## Alertmanager configuration with Hangouts Chat with default template
 
 1. Create [Hangouts Chat Incoming Webhook](https://developers.google.com/hangouts/chat/how-tos/webhooks)
 2. Copy Incoming Webhook URL
-3. Copy file `configmap.example.yaml` to `configmap.yaml` and replace `%CHANGE_ME_URL%` with copied Incoming Webhook URL
-4. Run `kubectl appply -f configmap.yaml deployment.yaml`
+3. Copy files from this directory and update `config.yaml` according to your needs
+4. Run `kustomize build | kubectl apply -f -`
 5. Configure alertmanager's receiver like this:
 
     ```yaml
