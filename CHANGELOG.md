@@ -1,3 +1,11 @@
+# [0.4.0](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.3.1...v0.4.0) (2020-01-14)
+
+[Full changelog](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.3.1...v0.4.0)
+
+### Features
+
+* **http:** Gracefully shutdown HTTP server ([2a4ec7e](https://github.com/miquido/alertmanager-webhook-forwarder/commit/2a4ec7e235acd0e59df185363022f24efcec7fb3))
+
 ## [0.3.1](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.3.0...v0.3.1) (2019-10-18)
 
 [Full changelog](https://github.com/miquido/alertmanager-webhook-forwarder/compare/v0.3.0...v0.3.1)
