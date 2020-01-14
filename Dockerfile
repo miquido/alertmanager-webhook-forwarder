@@ -33,7 +33,7 @@ COPY --from=RunnerBase /etc/passwd /etc/passwd
 ARG BINARY_NAME="dist/alertmanager-webhook-forwarder"
 COPY --from=GoBuilder /usr/src/app/${BINARY_NAME} ./alertmanager-webhook-forwarder
 USER app
-ENTRYPOINT ["/usr/src/app/alertmanager-webhook-forwarder"]
+ENTRYPOINT ["./alertmanager-webhook-forwarder"]
 CMD ["help"]
 VOLUME ["/tmp"]
 
