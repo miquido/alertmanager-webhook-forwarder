@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-webhook-forwarder
+spec:
+  type: NodePort
+  ports:
+    - name: http-app
+      protocol: TCP
+      port: 80
+      nodePort: 30080
+      targetPort: http-app
