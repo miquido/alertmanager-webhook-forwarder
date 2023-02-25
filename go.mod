@@ -24,7 +24,7 @@ require (
 	github.com/spf13/viper v1.6.1
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
-	golang.org/x/sys v0.0.0-20200113162924-86b910548bc1 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	google.golang.org/api v0.15.0
 	google.golang.org/genproto v0.0.0-20200113173426-e1de0a7b01eb // indirect
 	gopkg.in/ini.v1 v1.51.1 // indirect
